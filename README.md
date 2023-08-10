@@ -22,10 +22,10 @@ Derived from https://github.com/the6p4c/Flatpack2/blob/master/Arduino/fp2_contro
 ## Screen Shots
 
 ### Startup and status command ('s')
-![](screen_shot_1.png)
+![](screen_shot_2.png)
 
 ### Monitor mode ('m')
-![](screen_shot_2.png)
+![](screen_shot_1.png)
 
 ### Serial plotter output
 ![](screen_shot_3.png)
