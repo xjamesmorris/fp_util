@@ -8,6 +8,8 @@ This should work with all Arduino-type shields, as long as the CS & INT pins are
 You'll need to install the mcp_can and LibPrintf libraries (simplest method is 
 via the Arduino IDE).
 
+Note: you can use Arduino's serial plotter when in monitor mode. This worked by accident!
+
 Derived from https://github.com/the6p4c/Flatpack2/blob/master/Arduino/fp2_control/
 
 Information sources:
