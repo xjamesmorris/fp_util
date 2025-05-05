@@ -3,15 +3,15 @@
 
 #include <Arduino.h>
 
-#define FP_VERSION "v1.0"
+#define FP_VERSION "v1.1"
 #define FP_SERIAL_SPEED 115200
 #define FP_DEF_MON_INTRVL 5 /* s */
 #define FP_MIN_MON_INTRVL 1 /* s */
 #define FP_CMD_LEN_MAX 8
 #define FP_MIN_VOLTS 4350    /* cV */
 #define FP_MAX_VOLTS 5760    /* cV */
-#define FP_MAX_AMPS 400      /* dA */
-#define FP_LOGIN_INTRVL 1000 /* ms */
+#define FP_MAX_AMPS 400      /* dA, = 40A */
+#define FP_LOGIN_INTRVL 5000 /* ms */
 #define FP_RX_INTRVL 2000    /* ms */
 #define FP_SERIAL_LEN 6
 #define FP_CVSET_LEN 8
