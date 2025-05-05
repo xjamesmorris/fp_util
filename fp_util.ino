@@ -7,7 +7,8 @@
  * Note the use of F("") strings. This is to save SRAM by storing strings in flash (PROGMEM),
  * which I needed when extending this code to include an OLED display. YMMV.
  *
- * Derived from https://github.com/the6p4c/Flatpack2/blob/master/Arduino/fp2_control/
+ * Derived from https://github.com/the6pm
+ c/Flatpack2/blob/master/Arduino/fp2_control/
  *
  * Information sources:
  *      https://github.com/neggles/flatpack2s2/blob/main/docs/Protocol.md
@@ -28,7 +29,7 @@
  *
  * A copy of the GNU Lesser General Public License, <http://www.gnu.org/licenses/>.
  *
- * Copyright (c) 2023 James Morris <jmorris@namei.org>
+ * Copyright (c) 2023, 2024 James Morris <jmorris@namei.org>
  * */
 #include <mcp_can.h>
 #include <SPI.h>
@@ -108,7 +109,7 @@ void fp_cmd_cur_volts(String arg) {
   }
 
   fp_prompt(F("Setting the voltage to "));
-  printf("%.2fv... ", val);
+  printf("%.2f... ", val);
   fp_fill_cvset(txbuf, cv);
 
   /* TODO: investigate if the library timeout needs to be extended */
@@ -136,7 +137,7 @@ void fp_fill_dvset(uint8_t buf[], int val) {
 
 void fp_res_set_def_volts(void) {
   fp_stop_wait();
-  printf(FP_P "Done. This change will take effect after the next power cycle.\n\n");
+  printf(FP_P "Done. This change will take effect after the next power cycle or login.\n\n");
 }
 
 void fp_cmd_def_volts(String arg) {
@@ -266,7 +267,6 @@ void fp_print_status(void) {
 
   Serial.println(F(""));
 
-  /* TODO: is there an ack message for this ? */
   if (fp.stat.warning || fp.stat.alarm) {
     uint8_t rv, txbuf[3] = { 0x08, uint8_t(fp.stat.warning ? 0x04 : 0x08), 0x00 };
     rv = FP_CAN.sendMsgBuf(0x0501BFFC, 1, 3, txbuf);
@@ -404,10 +404,19 @@ void fp_read_CAN(void) {
    * 01 below is ID of PSU, which is hard coded to 1. 4 = normal operation.
    * TODO: clean this up
    */
+  /* XXXX fix this ! */
   if ((rxid & 0xFFFFFF00) == 0x05014000)
     fp_process_status(rxid, len, rxbuf);
   else if (rxid == 0x0501BFFC)
     processWarningOrAlarmMessage(rxid, len, rxbuf);
+  else if ((rxid & 0xFFFF0000) == 0x05000000)
+    /* Hello message, ignore */
+    ;
+  else if (rxid == 0x05014400)
+    /* Login request message, ignore */
+    ;
+  else
+    printf("UNKNOWN message: 0x%08lx\n", rxid);
 
   return;
 }
@@ -448,7 +457,6 @@ void fp_start_wait(uint32_t wait_id) {
  * so we check for a timeout while waiting then fail the operation.
  */
 bool fp_wait_timeout(void) {
-  unsigned long now = millis();
 
   if ((millis() - fp.wait_start) > FP_RX_INTRVL) {
     fp_stop_wait();
@@ -519,9 +527,7 @@ void fp_menu(void) {
 
 void fp_get_cmd(void) {
   String cmd;
-  float arg;
   char c;
-  int v;
 
   if (!Serial.available())
     return;
